@@ -1,1 +1,1 @@
-This bundle serves as a template for creating a new bundle. Run `show_bundle bundle-none-template` to see instructions.
+`kallisto` and `bustools` are wrapped in an easy-to-use program called `kb` which is part of the `kb-python` package (developer documentation). This bundle provides instructions for installing `kb` for running the example notebook titled, *Pre-processing and analysis of feature barcode single-cell RNA-seq data with KITE* [1].

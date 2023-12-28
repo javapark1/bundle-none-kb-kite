@@ -2,111 +2,133 @@
 
 ---
 
-<!-- Platforms -->
-[![Host OS](https://github.com/padogrid/padogrid/wiki/images/padogrid-host-os.drawio.svg)](https://github.com/padogrid/padogrid/wiki/Platform-Host-OS) [![VM](https://github.com/padogrid/padogrid/wiki/images/padogrid-vm.drawio.svg)](https://github.com/padogrid/padogrid/wiki/Platform-VM) [![Docker](https://github.com/padogrid/padogrid/wiki/images/padogrid-docker.drawio.svg)](https://github.com/padogrid/padogrid/wiki/Platform-Docker) [![Kubernetes](https://github.com/padogrid/padogrid/wiki/images/padogrid-kubernetes.drawio.svg)](https://github.com/padogrid/padogrid/wiki/Platform-Kubernetes)
+# KB-KITE (Kallisto Indexing and Tag Extraction)
 
-# Generic (none) Bundle Template
-
-This bundle serves as a template for creating a new generic onlne bundle.
+This bundle provides instructions for installing `kb` for running the example notebook titled, *Pre-processing and analysis of feature barcode single-cell RNA-seq data with KITE* [1].
 
 ## Installing Bundle
 
 ```bash
-install_bundle -download bundle-none-template
+install_bundle -checkout bundle-none-kb-kite
 ```
 
 ## Use Case
 
-If you are creating a new generic online bundle, then you can use this template to create your bundle repo. It includes all the required files with marked annotations for you to quickly start developing a new online bundle. Please follow the steps shown below.
+`kallisto` and `bustools` are wrapped in an easy-to-use program called `kb` which is part of the `kb-python` package (developer documentation). This bundle provides instructions for installing `kb` for running the example notebook titled, [*Pre-processing and analysis of feature barcode single-cell RNA-seq data with KITE*](https://www.kallistobus.tools/tutorials/kb_kite/python/kb_kite/) [1].
 
-A generic bundle does not emphasize products and may require zero or more products. PadoGrid uses the term *none* for such bundles. Some of the examples are listed below.
-
-- Bundles that include only Kubernetes and/or Docker solutions.
-- Bundles that require two or more products and none of them can be labeled as the primary product.
-- Bundles that require the user to manually install products. For example, a tutorial or training bundle that intentionally left out product requirements.
-
-## 1. Create Repo
-
-Select **Use this template** button in the upper right coner to create your repo. Make sure to follow the bundle naming conventions described in the following link.
-
-## 2. Checkout Repo in Workspace
-
-```bash
-# PadoGrid 0.9.7+
-install_bundle -checkout <bundle-repo-name>
-
-# PadoGrid 0.9.6 and older
-install_bundle -download -workspace <bundle-repo-name>
-
-# Switch into the checked out bundle workspace
-switch_workspace <bundle-repo-name>
-```
-
-## 3. Update Files
-
-Update the files came with the template repo.
-
-- `pom.xml`
-- `assembly-descriptor.xml`
-- `.gitignore`
-- `README_HEADER.md` (Optional)
-- `README.md` (This file)
-- `README.TEMPLATE` (Remove it when done. See instructions below.)
-- `required_products.txt`
-
-### 3.1. pom.xml
-
-The `pom.xml` file contains instructions annocated with **@template**. Search **@template** and add your bundle specifics there.
-
-### 3.2 assembly-descriptor.xml
-
-This file creates a tarball that will be deployed when the user executes the `install_bundle -download` command. Search **@template** and add your bundle specifics there.
-
-### 3.3 .gitignore
-
-The `.gitignore` file lists workspace specific files to be excluded from getting checked in. Edit `.gitignore` and add new exludes or remove existing excludes.
-
-```bash
-vi .gitignore
-```
-
-Make sure to comment out your workspace directories (components) so that they can be included by `git`.
+## Bundle Contents
 
 ```console
-...
-# PadoGrid workspace directories
 apps
-clusters
-docker
-k8s
-pods
-...
+└── kite
 ```
 
-## 3.4. README_HEADER.md
+## Install Miniconda3 and Restart JupyterLab
 
-Enter a short description of your bundle in the `README_HEADER.md` file. This file content is displayed when you execute the `show_bundle -header` command. **Note that this file is optional.** If it does not exist, then the first paragraph of the `README.md` file is used instead.
-
-## 3.5. READEME.md (this file)
-
-Replace `README.md` with the README_TEMPLATE.md file. Make sure to remove `README_TEMPLATE.md` after you have replaced `READEME.md` with it.
+First, install Miniconda3 and JupyterLab as follows.
 
 ```bash
-cp README_TEMPLATE.md README.md
-git rm README_TEMPLATE.md
+cd $PADOGRID_ENV_BASE_PATH/downloads
+curl -sSL -O https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+bash Miniconda3-latest-Linux-x86_64.sh  -b -p $PADOGRID_ENV_BASE_PATH/products/miniconda3
+
+# Initialzie minconda3
+$PADOGRID_ENV_BASE_PATH/products/miniconda3/bin/conda init
+. ~/.bashrc
+
+# Install JupyterLab
+conda init bash
+pip install jupyterlab
 ```
 
-Update the `READEME.md` file by following the instructions in that file.
+## Restart JupyterLab 
 
-## 3.6. required_products.txt
+If you are running PadoGrid in Docker/Kubernetes, restart JupyterLab as follows.
 
-The `required_products.txt` file must include a list of required products and their versions. Its format is described in the following link.
+```bash
+conda create -n myenv -all
+conda activate myenv
+conda install -y pip
+conda update -y --all
+pip install jupyterlab
+stop_jupyter && start_jupyter -dashboard -default
+```
 
-[Relaxed Bundle Naming Conventions](https://github.com/padogrid/padogrid/wiki/User-Bundle-Repos#relaxed-conventions)
+## Install `MulticoreTSNE` from Source
 
-## 4. Develop and Test Bundle
+Installing `MulticoreTSNE` using `pip` may throw the following error.
 
-You can freely make changes and test the bundle in the workspace. When you are ready to check in, you simply commit the changes using the `git commit` command. For new files, you will need to select only the ones that you want to check in using the `git status -u` and `git diff` commands. For those files that you do not want to check in, you can list them in the `.gitignore` file so that they do not get checked in accidentally.
+```console
+Building wheels for collected packages: MulticoreTSNE
+  Building wheel for MulticoreTSNE (setup.py) ... error
+  error: subprocess-exited-with-error
+  
+  × python setup.py bdist_wheel did not run successfully.
+  │ exit code: 1
+  ╰─> [27 lines of output]
+      running bdist_wheel
+      running build
+      running build_py
+      creating build
+      creating build/lib.linux-x86_64-cpython-311
+      creating build/lib.linux-x86_64-cpython-311/MulticoreTSNE
+      copying MulticoreTSNE/__init__.py -> build/lib.linux-x86_64-cpython-311/MulticoreTSNE
+      creating build/lib.linux-x86_64-cpython-311/MulticoreTSNE/tests
+      copying MulticoreTSNE/tests/__init__.py -> build/lib.linux-x86_64-cpython-311/MulticoreTSNE/tests
+      copying MulticoreTSNE/tests/test_base.py -> build/lib.linux-x86_64-cpython-311/MulticoreTSNE/tests
+      running egg_info
+      writing MulticoreTSNE.egg-info/PKG-INFO
+      writing dependency_links to MulticoreTSNE.egg-info/dependency_links.txt
+      writing requirements to MulticoreTSNE.egg-info/requires.txt
+      writing top-level names to MulticoreTSNE.egg-info/top_level.txt
+      reading manifest file 'MulticoreTSNE.egg-info/SOURCES.txt'
+      reading manifest template 'MANIFEST.in'
+      adding license file 'LICENSE.txt'
+      writing manifest file 'MulticoreTSNE.egg-info/SOURCES.txt'
+      running build_ext
+      cmake version 3.28.1
+      
+      CMake suite maintained and supported by Kitware (kitware.com/cmake).
+      CMake Error: Unknown argument --
+      CMake Error: Run 'cmake --help' for all supported options.
+      
+      ERROR: Cannot generate Makefile. See above errors.
+      [end of output]
+```
+
+In that case, build it from the source as follows.
+
+```
+git clone https://github.com/DmitryUlyanov/Multicore-TSNE.git
+cd Multicore-TSNE/
+pip install .
+```
+
+If you encounter the same error, then edit `setup.py` and remove the following line.
+
+```python
+self.cmake_args or "--",
+```
+
+`MulticoreTSNE` can also be downloaded as follows.
+
+```bash
+curl -O https://files.pythonhosted.org/packages/2d/e8/2afa896fa4eebfa1d0d0ba2673fddac45582ec0f06b2bdda88108ced5425/MulticoreTSNE-0.1.tar.gz
+
+tar xzf MulticoreTSNE-0.1.tar.gz
+cd MulticoreTSNE-0.1
+less README.md
+```
+
+## Startup Sequence
+
+1. From JupyterLab, open the following notebook.
+
+- bundle/none-kb-kite/apps/kite/kite.ipynb
+
+## References
+
+1. *Pre-processing and analysis of feature barcode single-cell RNA-seq data with KITE*, https://www.kallistobus.tools/tutorials/kb_kite/python/kb_kite/
 
 ---
 

@@ -6,12 +6,11 @@
 
 	<groupId>padogrid.addon</groupId>
 	<!-- @template: Enter your bundle name here -->
-	<artifactId>bundle-none-template</artifactId>
+	<artifactId>bundle-none-kb-kite</artifactId>
 	<packaging>pom</packaging>
 	<name>${project.artifactId}</name>
 	<version>1.0.0</version>
-	<!-- @template: Enter your bundle description -->
-	<description>Bundle template</description>
+	<description>This bundle provides instructions for installing `kb` for running the example notebook titled, Pre-processing and analysis of feature barcode single-cell RNA-seq data with KITE.</description>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
